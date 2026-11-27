@@ -89,7 +89,7 @@
 </div></section>
 
 <section class="band" id="receipts"><div class="wrap">
-  <div class="head reveal"><span class="lbl">Receipts</span><h2>The meter is <em>public.</em></h2><p>Every output and every rental writes a receipt. Each hour the receipts are hashed into one root, and the root goes into a Elysium transaction anyone can read.</p></div>
+  <div class="head reveal"><span class="lbl">Receipts</span><h2>The meter is <em>public.</em></h2><p>Every output and every rental writes a receipt. Each hour the receipts are hashed into one root, and the root goes into an Elysium transaction anyone can read.</p></div>
   <div class="split">
     <div class="slab reveal"><span class="lbl">How to check one</span><table><tbody>
       <tr><td class="num grn">1</td><td>Open a receipt and read its fields: what ran, for how long, what it cost.</td></tr>
@@ -114,7 +114,7 @@
 <section class="band faq" id="faq"><div class="wrap">
   <div class="head reveal"><span class="lbl">FAQ</span><h2>Straight <em>answers.</em></h2><p>The docs go through every step with the exact requests.</p></div>
   <details><summary>What is ANVIL?</summary><p>ANVIL is a GPU cloud you pay for on Elysium. It rents whole NVIDIA GPUs by the second with SSH and Jupyter, and it runs ready media models that make images, video and voice for a fixed price per output. Both are paid from one balance of ANVIL credits.</p></details>
-  <details><summary>What is a ANVIL credit and what does it cost?</summary><p>One credit pays for one dollar of outputs and rentals at their listed prices. At launch a credit costs 0.70 USDC, so everything is 30% under its listed price. Balances are cut down to the last micro-credit and never rounded up. Unused credits refund to the wallet that bought them at the price it paid, in the asset it paid with.</p></details>
+  <details><summary>What is an ANVIL credit and what does it cost?</summary><p>One credit pays for one dollar of outputs and rentals at their listed prices. At launch a credit costs 0.70 USDC, so everything is 30% under its listed price. Balances are cut down to the last micro-credit and never rounded up. Unused credits refund to the wallet that bought them at the price it paid, in the asset it paid with.</p></details>
   <details><summary>How do I pay?</summary><p>Connect a wallet such as MetaMask or Rabby and sign one message to sign in. It costs no gas and moves no funds. Then buy credits in Billing with USDC, HYPE or $ANVIL, from 5 to 1,000 dollars at a time. Your wallet switches to Elysium, the transfer goes to the ANVIL treasury, and the credits show up when the chain confirms it.</p></details>
   <details><summary>What comes with a rental?</summary><p>A whole GPU instance with a 50 GB disk, PyTorch and CUDA installed, SSH on its own port and Jupyter behind an SSH tunnel. Add a public SSH key, pick a GPU or let anvil/auto pick the cheapest that fits, and connect. Billing starts the second SSH is ready, so the start is free, and it stops the second you end the instance. A wallet runs one instance at a time.</p></details>
   <details><summary>What if a GPU fails to start, or my credits run out?</summary><p>A GPU that never starts is never billed. ANVIL moves the rental once to the next cheapest GPU with at least the same memory, and if that fails too it stops and tells you why. While an instance runs, its cost comes out second by second, and when the balance can no longer pay for the next second the instance ends. The app warns ten minutes ahead.</p></details>

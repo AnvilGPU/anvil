@@ -94,7 +94,7 @@ curl ORIGIN/api/v1/outputs/OUTPUT_ID \
 <ul><li>Any client of x402 v2 with the exact scheme pays ANVIL: it knows USDC on Elysium as the network <code>eip155:99901</code>.</li><li>A payment buys credits for the wallet that signed it and the output spends them, so every output has a receipt. A failed output leaves its credits with that wallet.</li><li>A payment pays once. Sent again, or for another price, it answers 402 with the price.</li><li>x402 pays for outputs. GPU rentals take an API key.</li></ul>
 
 <h2 id="receipts">Receipts</h2>
-<p>Every paid output and every rental writes a receipt: what ran, for how many GPU seconds, and what it cost. Each hour, the receipts of that hour are hashed into a Merkle root, and the root is written into the data of a Elysium transaction.</p>
+<p>Every paid output and every rental writes a receipt: what ran, for how many GPU seconds, and what it cost. Each hour, the receipts of that hour are hashed into a Merkle root, and the root is written into the data of an Elysium transaction.</p>
 <ol><li>The leaf is the SHA-256 of the fields <code>id|wallet|kind|ref|what|micro|seconds|ts</code> joined with a bar.</li><li>Each step of the proof is hashed with the running hash, smaller value first.</li><li>The last hash is the root of the hour, which is the text in the transaction data: <code>anvil:receipts:v1:HOUR:ROOT</code>.</li></ol>
 <p>The Receipts page does this in your browser when you press <b>Check</b>. <code>GET /api/receipts/{id}/proof</code> returns the same proof for your own code.</p>
 
