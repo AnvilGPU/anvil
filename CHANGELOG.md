@@ -4,6 +4,10 @@ Notable changes to ANVIL. Versions follow [Semantic Versioning](https://semver.o
 
 ## [Unreleased]
 
+### Added
+
+- Quench: `quench` minutes on `POST /api/v1/instances` and `rent_gpu` ends the instance by itself after that much running time
+
 ## [0.1.0] - 2026-11-26
 
 First release.

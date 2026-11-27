@@ -186,14 +186,16 @@ export function dropSsh(w, sid) { const a = acct(w), n = a.ssh.length; a.ssh = a
 
 // ---------- rentals: a whole GPU, metered by the second ----------
 const live = (i) => ['starting', 'running'].includes(i.state);
-const ipub = (i) => ({ id: i.id, gpu: i.gpu, vram: i.vram, status: i.state, rate: i.rate / M, created: i.ts, started: i.runAt || null, ended: i.endAt || null, seconds: i.seconds, credits: i.micro / M, ssh: i.state === 'running' ? i.ssh : undefined, jupyter: i.state === 'running' ? i.jupyter : undefined, reason: i.reason });
+const ipub = (i) => ({ id: i.id, gpu: i.gpu, vram: i.vram, status: i.state, rate: i.rate / M, created: i.ts, started: i.runAt || null, ended: i.endAt || null, seconds: i.seconds, credits: i.micro / M, quench: i.quench || null, quenchAt: i.quench && i.runAt ? i.runAt + Math.round(i.quench * 60e3) : null, ssh: i.state === 'running' ? i.ssh : undefined, jupyter: i.state === 'running' ? i.jupyter : undefined, reason: i.reason });
 export async function rent(w, body, k = null) {
-  const a = acct(w); if (!a.ssh.length) throw E(400, 'Add an SSH key first'); if (Object.values(db.instances).some((i) => i.wallet === w && live(i))) throw E(409, 'A wallet runs one instance at a time');
+  const a = acct(w); 
+  // a quench is a number of minutes of running time after which the instance ends itself
+  const quench = body?.quench == null || body.quench === '' ? 0 : +body.quench; if (quench !== 0 && !(quench >= (TEST ? 0.02 : 5) && quench <= 10080)) throw E(400, 'A quench is between 5 minutes and 7 days, in minutes'); if (!a.ssh.length) throw E(400, 'Add an SSH key first'); if (Object.values(db.instances).some((i) => i.wallet === w && live(i))) throw E(409, 'A wallet runs one instance at a time');
   const list = await gpu.listGpus(), want = !body?.gpu || body.gpu === 'auto' ? gpu.cheapest(list, +body?.vram || 0) : list.find((g) => g.id === body.gpu || g.name.toLowerCase() === String(body.gpu).toLowerCase());
   if (!want) throw E(404, 'No GPU fits that'); if (!want.available) throw E(409, 'That GPU is busy right now. A busy GPU charges nothing');
   const rate = Math.round(want.listed * M); if (balance(w) < rate / 6) throw E(402, 'Your credits must pay for at least 10 minutes of this GPU');
   if (!gpu.connected()) throw E(503, 'The GPU provider is not connected yet');
-  const i = { id: id('ins_'), wallet: w, gpu: want.name, gpuId: want.id, cloud: want.cloud, vram: want.vram, rate, state: 'starting', ts: now(), seconds: 0, micro: 0, took: [], key: k?.id || null, tries: 1 };
+  const i = { id: id('ins_'), wallet: w, gpu: want.name, gpuId: want.id, cloud: want.cloud, vram: want.vram, rate, state: 'starting', ts: now(), seconds: 0, micro: 0, took: [], key: k?.id || null, tries: 1, quench };
   Object.assign(i, await gpu.startPod(want, i.id, a.ssh.map((s) => s.key))); db.instances[i.id] = i; save(); return ipub(i);
 }
 async function endInstance(i, reason) {
@@ -221,7 +223,8 @@ async function tick() {
     }
     if (i.state === 'running') { const secs = Math.floor((now() - i.billed) / 1000); if (secs < 1) continue; const micro = Math.ceil(i.rate * secs / 3600);
       try { i.took.push(...take(i.wallet, micro, k)); i.billed += secs * 1000; i.seconds += secs; i.micro += micro; const l = a.lines.find((x) => x.ref === i.id); if (l) l.micro = -i.micro; else line(a, { kind: 'rental', micro: -i.micro, ref: i.id, note: i.gpu }); save(); }
-      catch (e) { await endInstance(i, e.status === 429 ? 'its key reached its spend cap' : 'the credits ran out'); } }
+      catch (e) { await endInstance(i, e.status === 429 ? 'its key reached its spend cap' : 'the credits ran out'); }
+      if (live(i) && i.quench && now() >= i.runAt + i.quench * 60e3) await endInstance(i, 'it was quenched on time'); }
   }
 }
 export const instancesOf = (w) => Object.values(db.instances).filter((i) => i.wallet === w).sort((a, b) => b.ts - a.ts).map(ipub);
